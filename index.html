@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<!--
+****************************
+*  Hand Motion Detection   *
+*  Created By: Joe Pecsi   *
+* Using the Leap JS Sample *
+* **************************
+-->
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>Hand Motion Detection</title>
+		<script src="./leap.js"></script>
+		<script>
+			// Keep track of previous positions (x, y, z)
+			var previousX = 0;
+			var previousY = 0;
+			var previousZ = 0;
+			
+			Leap.loop(function(frame) {
+				// Display Hand object data
+				var handOutput = document.getElementById("handData");
+				var handString = "";
+
+				if (frame.hands.length > 0) {
+					for (var i = 0; i < frame.hands.length; i++) {
+						var hand = frame.hands[i];
+						
+						// Get current position for x, y, z
+						x = (hand.palmPosition[0].toFixed(1));
+						y = (hand.palmPosition[1].toFixed(1));
+						z = (hand.palmPosition[2].toFixed(1));
+						
+						// Round data
+						x = Math.round(x)
+						y = Math.round(y)
+						z = Math.round(z)
+						
+						// Find out which direction the hand is moving
+						xDirection = directionCheck(x, 'x', previousX);
+						yDirection = directionCheck(y, 'y', previousY);
+						zDirection = directionCheck(z, 'z', previousZ);
+						
+						// Build HTML with data
+						handString += "<div style='width:300px; float:left; padding:5px'>"
+						handString += "<strong>X:  </strong> " + xDirection + " (" + x + ") <br />";
+						handString += "<strong>Y:  </strong>" + yDirection + " (" + y + ") <br />";
+						handString += "<strong>Z:  </strong>" + zDirection + " (" + z + ") <br />";
+						
+						// Store previous positions (x, y, z)
+						previousX = x;
+						previousY = y;
+						previouzZ = z;
+					}
+				} else {
+					// Message if no hand(s) detected
+					handString += "Look ma, no hands! Ok but seriously...put your hand up";
+				}
+				
+				// Build HTML
+				handOutput.innerHTML = handString;		
+			})
+
+			function directionCheck(element, idx, previousElement){	
+				switch(idx){
+					case 'x':  // X Index
+						if (element > previousElement){
+							return "Right";
+						}else{
+							return "Left";
+						}
+						break;
+						
+					case 'y':  // Y Index
+						if (element > previousElement){
+							return "Up";
+						}else{
+							return "Down";
+						}
+						break;
+						
+					case 'z':  // Z Index
+						if (element > previousElement){
+							return "Back";
+						}else{
+							return "Forward";
+						}
+						break;
+				}
+			
+			}
+
+			function checkLibrary() {
+				if ( typeof Leap === "undefined") {
+					document.getElementById("main").innerHTML = "The Leap Motion JavaScript client library (leap.js file) was not found. Please download the library from the GitHub project at <a href='https://github.com/leapmotion/leapjs'>https://github.com/leapmotion/leapjs</a>."
+					alert("Yo dawg...couldn't find the leap.js file!");
+				}
+			}
+		</script>
+	</head>
+	<body onload="checkLibrary()">
+		<div id="main">
+			
+			 <h3>Hand Data:</h3>
+			<div id="handData"></div>
+			<div style="clear:both;"></div>
+
+		</div>
+	</body>
+</html>
